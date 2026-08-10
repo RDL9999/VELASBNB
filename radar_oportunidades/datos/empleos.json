@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "actualizado": "2026-08-10T09:10:00Z",
+    "total": 478,
+    "por_tipo": {
+      "cursos": 471,
+      "becas": 4,
+      "empleos": 1,
+      "concursos": 2
+    },
+    "fuentes": [
+      "capacitate",
+      "skillshop",
+      "mexicox",
+      "gob_becas",
+      "gob_convocatorias",
+      "coursera",
+      "edx",
+      "linkedin_learning"
+    ]
+  },
+  "items": [
+    {
+      "id": "gob_convocatorias-e634643839",
+      "titulo": "Empleo público federal (Servicio Profesional de Carrera)",
+      "fuente_id": "gob_convocatorias",
+      "tipo": "empleo",
+      "fuente": "Convocatorias (gob.mx)",
+      "descripcion": "Vacantes y concursos de ingreso al servicio público federal en México. Consulta los puestos disponibles.",
+      "url": "https://www.gob.mx/convocatorias",
+      "categoria": "Empleos",
+      "certificado": false,
+      "gratis": true,
+      "pais": "México",
+      "requisitos": "Cumplir perfil de la plaza; varía por puesto",
+      "duracion_h": null,
+      "origen": "curado",
+      "fecha_deteccion": "2026-07-27",
+      "fecha_actualizacion": "2026-08-10"
+    }
+  ]
+}

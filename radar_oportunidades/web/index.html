@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radar de Oportunidades Gratuitas · Cursos, Becas, Empleos y Concursos</title>
+  <meta name="description" content="Descubre gratis cursos en línea, becas oficiales, empleos públicos y concursos. Actualizado automáticamente desde fuentes oficiales.">
+  <meta property="og:title" content="Radar de Oportunidades Gratuitas">
+  <meta property="og:description" content="Cursos gratis, becas, empleos y concursos actualizados cada 6-12 horas desde fuentes oficiales.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="contenedor barra">
+      <a class="logo" href="index.html">📡 Radar <span>Oportunidades</span></a>
+      <nav class="nav">
+        <a href="#lista">Oportunidades</a>
+        <a href="#premium">Premium</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a class="btn btn-cta" href="premium.html">Hazte Premium</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="contenedor">
+      <h1>Cursos gratis, becas, empleos y concursos<br><span>sin pagar un peso</span></h1>
+      <p class="hero-sub">Recopilamos y actualizamos cada 6–12 horas las oportunidades gratuitas de
+        Capacítate para el Empleo, Google Actívate, MéxicoX, gob.mx, Coursera, edX y más.</p>
+      <div class="buscador">
+        <input id="busqueda" type="search" placeholder="Buscar: marketing, programación, beca, empleo…" autocomplete="off">
+        <button id="btn-buscar" aria-label="Buscar">🔍</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </section>
+
+  <main class="contenedor" id="lista">
+    <div class="lista-head">
+      <h2>Oportunidades recientes</h2>
+      <span id="contador" class="contador"></span>
+    </div>
+
+    <div id="filtros" class="filtros"></div>
+
+    <div id="gratis-note" class="gratis-note">
+      <strong>Modo gratis:</strong> estás viendo las <b>últimas 3 días</b> de oportunidades.
+      Con <a href="premium.html">Premium</a> accede a todo el historial, alertas por correo y filtros avanzados.
+    </div>
+
+    <div id="grid" class="grid"></div>
+
+    <div class="carga" id="carga">Cargando oportunidades…</div>
+
+    <section class="upsell" id="premium">
+      <div class="upsell-texto">
+        <h2>Accede a todo el radar</h2>
+        <p>La versión gratuita solo muestra lo más reciente. Con Premium:</p>
+        <ul>
+          <li>✅ Historial completo de cursos, becas, empleos y concursos</li>
+          <li>✅ Alertas personalizadas por correo cuando aparece tu tema</li>
+          <li>✅ Filtros avanzados: duración, certificado, requisitos</li>
+          <li>✅ Acceso desde cualquier dispositivo</li>
+        </ul>
+        <p class="precio"><b>$5 USD</b> <span>pago único · PayPal</span></p>
+        <a class="btn btn-cta btn-grande" href="premium.html">Activar Premium ahora</a>
+      </div>
+      <div class="upsell-img">🎓</div>
+    </section>
+  </main>
+
+  <section class="como-funciona" id="como-funciona">
+    <div class="contenedor">
+      <h2>¿Cómo funciona?</h2>
+      <div class="pasos">
+        <div class="paso"><span>1</span><h3>Escaneo automático</h3><p>Un robot recorre portales oficiales cada 6–12 horas.</p></div>
+        <div class="paso"><span>2</span><h3>Filtrado y limpieza</h3><p>Eliminamos duplicados y solo publicamos oportunidades 100% gratuitas.</p></div>
+        <div class="paso"><span>3</span><h3>Tú eliges</h3><p>Busca, filtra y accede directo al portal oficial de cada oportunidad.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="contenedor">
+      <p>📡 Radar de Oportunidades Gratuitas · Datos de fuentes públicas y oficiales · Sin afiliación con los portales listados.</p>
+      <p><a href="premium.html">Premium</a> · <a href="#" id="enlace-avisos">Aviso legal</a> · Actualización automática cada 6–12 horas</p>
+    </div>
+  </footer>
+
+  <div id="modal-aviso" class="modal oculto">
+    <div class="modal-caja">
+      <button class="modal-cerrar" id="cerrar-aviso">✕</button>
+      <h3>Aviso legal</h3>
+      <p>Este sitio recopila enlaces públicos a oportunidades gratuitas de aprendizaje, becas y empleo. No somos
+      afiliados de las plataformas listadas. Verifica siempre los términos y requisitos en el portal oficial antes
+      de inscribirte. Los datos se actualizan automáticamente y pueden contener errores.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

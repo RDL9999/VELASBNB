@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium · Radar de Oportunidades Gratuitas</title>
+  <meta name="description" content="Activa Radar Premium: historial completo y alertas personalizadas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="contenedor barra">
+      <a class="logo" href="index.html">📡 Radar <span>Oportunidades</span></a>
+      <nav class="nav">
+        <a href="index.html#lista">Oportunidades</a>
+        <a href="index.html#como-funciona">Cómo funciona</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero hero-mini">
+    <div class="contenedor">
+      <h1>Radar <span>Premium</span></h1>
+      <p class="hero-sub">Historial completo + alertas personalizadas por correo.</p>
+    </div>
+  </section>
+
+  <main class="contenedor">
+    <div id="estado-premium" class="premium-estado"></div>
+
+    <section class="plan" id="seccion-pago">
+      <div class="plan-tarjeta">
+        <h2>Acceso Premium</h2>
+        <p class="precio"><b>$5 USD</b> <span>pago único · PayPal</span></p>
+        <ul>
+          <li>✅ Todo el historial de cursos, becas, empleos y concursos</li>
+          <li>✅ Alertas personalizadas por correo</li>
+          <li>✅ Filtros avanzados (duración, certificado, categoría)</li>
+          <li>✅ Soporta el desarrollo del radar</li>
+        </ul>
+
+        <div class="pago-opciones">
+          <div id="botones-paypal" class="paypal-cont"></div>
+          <div class="pago-alt">
+            <p class="o">— o paga directo —</p>
+            <a id="link-paypal-me" class="btn btn-alt" target="_blank" rel="noopener">Pagar con PayPal</a>
+          </div>
+        </div>
+
+        <p class="nota">Al pagar se te redirige a PayPal (procesamiento seguro en el sitio de PayPal).
+        Al volver, introduce tu correo para activar tu acceso y las alertas.</p>
+      </div>
+
+      <div class="plan-tarjeta" id="tarjeta-alertas">
+        <h2>Mis alertas personalizadas</h2>
+        <p class="dim">¿Buscas algo específico? Te avisamos por correo cuando aparezca.</p>
+        <form id="form-alertas" autocomplete="off">
+          <label>Tu correo</label>
+          <input id="alerta-email" type="email" required placeholder="tucorreo@ejemplo.com">
+          <label>Palabras clave (separadas por coma)</label>
+          <input id="alerta-palabras" type="text" placeholder="programación, beca, marketing digital">
+          <label>Categorías de interés</label>
+          <select id="alerta-categoria">
+            <option value="">Todas</option>
+            <option value="cursos">Cursos</option>
+            <option value="becas">Becas</option>
+            <option value="empleos">Empleos</option>
+            <option value="concursos">Concursos</option>
+          </select>
+          <button class="btn btn-primario" type="submit">Guardar alertas</button>
+        </form>
+        <p id="msg-alertas" class="msg"></p>
+        <p class="dim nota">Sin servidor, las alertas se guardan en tu dispositivo. Para entrega real por
+        correo, usa la función serverless del tutorial en <a href="../LEEME.md" target="_blank">LEEME.md</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="contenedor">
+      <p>📡 Radar de Oportunidades Gratuitas · Pagos procesados por PayPal.</p>
+      <p><a href="index.html">Volver al radar</a></p>
+    </div>
+  </footer>
+
+  <script src="pago_config.js"></script>
+  <script src="premium.js"></script>
+</body>
+</html>

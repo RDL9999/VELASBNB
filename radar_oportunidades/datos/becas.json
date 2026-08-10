@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "actualizado": "2026-08-10T09:10:00Z",
+    "total": 478,
+    "por_tipo": {
+      "cursos": 471,
+      "becas": 4,
+      "empleos": 1,
+      "concursos": 2
+    },
+    "fuentes": [
+      "capacitate",
+      "skillshop",
+      "mexicox",
+      "gob_becas",
+      "gob_convocatorias",
+      "coursera",
+      "edx",
+      "linkedin_learning"
+    ]
+  },
+  "items": [
+    {
+      "id": "gob_becas-81259b0c0b",
+      "titulo": "Beca Jóvenes Escribiendo el Futuro",
+      "fuente_id": "gob_becas",
+      "tipo": "beca",
+      "fuente": "Becas México (gob.mx)",
+      "descripcion": "Beca para estudiantes de licenciatura en instituciones públicas de educación superior de México.",
+      "url": "https://www.gob.mx/becasjovenes",
+      "categoria": "Becas",
+      "certificado": false,
+      "gratis": true,
+      "pais": "México",
+      "requisitos": "Ser estudiante de licenciatura en una institución pública",
+      "duracion_h": null,
+      "origen": "curado",
+      "fecha_deteccion": "2026-08-10",
+      "fecha_actualizacion": "2026-08-10"
+    },
+    {
+      "id": "gob_becas-add23e31a2",
+      "titulo": "Beca Benito Juárez - Educación Básica",
+      "fuente_id": "gob_becas",
+      "tipo": "beca",
+      "fuente": "Becas México (gob.mx)",
+      "descripcion": "Apoyo económico del Gobierno de México para estudiantes de preescolar, primaria y secundaria inscritos en escuelas públicas de localidades prioritarias. Consulta la convocatoria oficial.",
+      "url": "https://www.gob.mx/becasbenitojuarez",
+      "categoria": "Becas",
+      "certificado": false,
+      "gratis": true,
+      "pais": "México",
+      "requisitos": "Estar inscrito en una escuela pública de educación básica",
+      "duracion_h": null,
+      "origen": "curado",
+      "fecha_deteccion": "2026-08-06",
+      "fecha_actualizacion": "2026-08-10"
+    },
+    {
+      "id": "gob_becas-0da6614b87",
+      "titulo": "Beca Benito Juárez - Educación Media Superior",
+      "fuente_id": "gob_becas",
+      "tipo": "beca",
+      "fuente": "Becas México (gob.mx)",
+      "descripcion": "Apoyo mensual para estudiantes de preparatoria o bachillerato de escuelas públicas. Monto y modalidad según la convocatoria.",
+      "url": "https://www.gob.mx/becasbenitojuarez",
+      "categoria": "Becas",
+      "certificado": false,
+      "gratis": true,
+      "pais": "México",
+      "requisitos": "Estudiar en una escuela pública de nivel medio superior",
+      "duracion_h": null,
+      "origen": "curado",
+      "fecha_deteccion": "2026-07-31",
+      "fecha_actualizacion": "2026-08-10"
+    },
+    {
+      "id": "gob_becas-52fc6f567c",
+      "titulo": "Portal de Becas del Gobierno de México",
+      "fuente_id": "gob_becas",
+      "tipo": "beca",
+      "fuente": "Becas México (gob.mx)",
+      "descripcion": "Directorio oficial de todos los programas de becas federales: educación básica, media superior, superior y posgrado.",
+      "url": "https://www.gob.mx/becas",
+      "categoria": "Becas",
+      "certificado": false,
+      "gratis": true,
+      "pais": "México",
+      "requisitos": "Varía según el programa",
+      "duracion_h": null,
+      "origen": "curado",
+      "fecha_deteccion": "2026-07-25",
+      "fecha_actualizacion": "2026-08-10"
+    }
+  ]
+}
