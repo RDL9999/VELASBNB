@@ -10,12 +10,11 @@
 - Raíz con redirección: `https://RDL9999.github.io/VELASBNB/`
 - Demo del producto: `https://RDL9999.github.io/VELASBNB/simulador_futbol_mejorado.html`
 
-**Estado de publicación:** el código y la landing están subidos y verificados en
-GitHub (rama `main`). La activación de Pages quedó bloqueada por el token actual
-(403 *Resource not accessible by integration*), que no incluye el permiso
-"Pages". Se dejó lista la workflow `.github/workflows/pages.yml` que auto-despliega
-en cuanto se active Pages con **1 clic**: `Settings → Pages → Source: GitHub
-Actions → Save` (detalle en `LEEME_publicar.md`).
+**Estado de publicación:** ✅ **EN VIVO.** La landing está publicada y verificada:
+`https://rdl9999.github.io/VELASBNB/landing/` responde 200, la raíz redirige a la
+landing y la demo carga correctamente. El despliegue se realiza vía la workflow
+`.github/workflows/pages.yml` (build_type: workflow), que corre automáticamente
+con cada push a `main`.
 
 ## 2. Enlaces de pago generados (reales)
 
@@ -48,13 +47,10 @@ con enlace a la landing y a PayPal, y hashtags (#DataScience, #Football,
 bash experimento_9usd_real/publicar.sh
 ```
 
-Y, si Pages aún no está activo (token sin permiso), el único paso manual:
-abrir `https://github.com/RDL9999/VELASBNB/settings/pages`,
-**Source: GitHub Actions → Save**. Después, opcional:
-
-```bash
-gh workflow run "Deploy Landing y Demo a GitHub Pages"
-```
+> La landing ya está publicada y en vivo. Para futuras actualizaciones, basta
+> con hacer push a `main`; la workflow despliega automáticamente. Si Pages se
+> desactivara alguna vez, reactívalo en `Settings → Pages → Source: GitHub
+> Actions → Save`.
 
 ## 6. Estrategia elegida y por qué
 
