@@ -6,7 +6,7 @@
  */
 const PAGO_CONFIG = {
   paypalClientId: "AQUI_TU_CLIENT_ID_DE_PAYPAL",
-  paypalMeUrl: "https://www.paypal.me/rdl2job",
+  paypalMeUrl: "https://paypal.me/MEJIARDL",
   emailNegocio: "rdl2.job@gmail.com",
   moneda: "USD",
   montoPremium: "5.00",
