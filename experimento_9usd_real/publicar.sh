@@ -43,14 +43,32 @@ else
 fi
 
 echo "==> [5/5] Configurando GitHub Pages desde la CLI..."
-# Activa Pages desde la rama actual si aún no está activo.
-gh api "repos/$REPO/pages" >/dev/null 2>&1 || gh api -X POST "repos/$REPO/pages" \
-  -f "source[branch]=$BRANCH" -f "source[path]=/" >/dev/null 2>&1 || true
+# Intenta activar Pages desde la CLI. Si el token no tiene permiso "Pages",
+# lo detecta y muestra las instrucciones manuales (1 minuto).
+if gh api "repos/$REPO/pages" >/dev/null 2>&1; then
+  echo "     Pages ya estaba activo."
+else
+  if gh api -X POST "repos/$REPO/pages" \
+      -f "source[branch]=$BRANCH" -f "source[path]=/" >/dev/null 2>&1; then
+    echo "     Pages activado por API."
+  else
+    echo "     ⚠ No se pudo activar Pages por API (el token no tiene permiso 'Pages')."
+    echo "     La workflow .github/workflows/pages.yml ya está lista y auto-desplegará."
+    echo "     ➜ Actívalo a mano (1 min):"
+    echo "         https://github.com/$REPO/settings/pages"
+    echo "         Source: GitHub Actions  →  Save"
+    echo "     En cuanto lo actives, la landing quedará viva automáticamente."
+  fi
+fi
 
-# Fuerza la espera del build (máx 90 s) y reporta el estado.
+# Espera el build (máx 90 s) si Pages ya está activo.
 for i in $(seq 1 30); do
   estado=$(gh api "repos/$REPO/pages" --jq ".status" 2>/dev/null || echo "pendiente")
-  echo "     Estado de Pages: $estado"
+  if [ -z "$estado" ] || [ "$estado" = "pending" ] || [ "$estado" = "queued" ]; then
+    echo "     Estado de Pages: en construcción..."
+  else
+    echo "     Estado de Pages: $estado"
+  fi
   if [ "$estado" = "built" ]; then break; fi
   sleep 3
 done
