@@ -31,10 +31,23 @@ demostrable con demo en vivo, precio $9 y publicación estática sin backend.
 5. Creado `posts_x.md` (5 posts listos).
 6. Creados `INGRESOS_REALES.md` (cero inventado) y este registro.
 7. Habilitación de GitHub Pages vía CLI, commit y push (ver log del repo).
+   - Resultado: el push y la workflow funcionan, pero **la activación de Pages
+     por API está bloqueada por el token** (403 "Resource not accessible by
+     integration"), tanto con el token del Codespace como con la propia
+     workflow de Actions usando `enablement: true`. Restricción de permiso
+     "Pages" del token, no del script.
+   - Solución entregada: la workflow `.github/workflows/pages.yml` ya está en
+     `main` y auto-despliega en cuanto se active Pages (1 clic en Settings →
+     Pages → Source: GitHub Actions → Save). Ver `LEEME_publicar.md`.
 
 ## Evidencia de publicación
 - Repositorio: https://github.com/RDL9999/VELASBNB (rama main)
-- Landing: https://RDL9999.github.io/VELASBNB/landing/
+- Contenido verificado en GitHub (API):
+  - `landing/index.html` (19495 bytes, 200)
+  - `experimento_9usd_real/landing/index.html` (200)
+  - `simulador_futbol_mejorado.html` (demo, 200)
+  - `experimento_9usd_real/producto/kit_dixon_coles.zip` (200)
+- Landing (una vez activado Pages): https://RDL9999.github.io/VELASBNB/landing/
 - Demo del producto: https://RDL9999.github.io/VELASBNB/simulador_futbol_mejorado.html
 
 ## Pendientes / seguimiento
