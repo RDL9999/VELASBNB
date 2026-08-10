@@ -1,6 +1,8 @@
 name: Radar · actualizar datos y publicar sitio
 
 on:
+  push:
+    branches: [main]
   schedule:
     # Cada 6 horas
     - cron: "0 */6 * * *"
