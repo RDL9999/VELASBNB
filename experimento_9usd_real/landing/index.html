@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kit Analítico Dixon-Coles — Simulador Estadístico de Fútbol</title>
+<meta name="description" content="Simulador estadístico de partidos de fútbol (modelo Dixon-Coles). Matriz exacta, Monte Carlo reproducible, xG, 1X2, over/under y más. Pruébalo gratis. $9 USD.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a1628; --bg2:#0f2035; --card:rgba(255,255,255,.05);
+  --line:rgba(255,255,255,.1); --txt:#eef4fb; --mut:#9fc3d4;
+  --acc:#00a8ff; --acc2:#00c9a7; --gold:#ffd34d; --red:#ff6b6b;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(10,22,40,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1000px;margin:0 auto}
+.brand{font-weight:800;font-size:1.05rem;letter-spacing:.02em}
+.brand span{color:var(--acc)}
+.nav-links{display:flex;gap:18px;align-items:center}
+.nav-links a{color:var(--mut);text-decoration:none;font-size:.85rem;font-weight:600}
+.nav-links a:hover{color:var(--txt)}
+.btn{display:inline-block;background:linear-gradient(90deg,#00a8ff,#0080ff);color:#fff;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px;border:none;cursor:pointer;font-size:.95rem;text-align:center;transition:transform .12s,box-shadow .12s,filter .12s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,168,255,.35);filter:brightness(1.06)}
+.btn.small{padding:8px 16px;font-size:.85rem}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--txt)}
+.btn.green{background:linear-gradient(90deg,#00c9a7,#00a876)}
+.btn.sec{background:rgba(255,255,255,.1)}
+
+/* ---------- Hero ---------- */
+.hero{padding:64px 0 40px;text-align:center}
+.hero .pill{display:inline-block;background:rgba(0,168,255,.12);color:var(--acc);border:1px solid rgba(0,168,255,.35);padding:4px 14px;border-radius:999px;font-size:.75rem;font-weight:700;letter-spacing:.05em;margin-bottom:18px}
+.hero h1{font-size:2.4rem;line-height:1.15;letter-spacing:-.02em;max-width:820px;margin:0 auto 16px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{color:var(--mut);font-size:1.1rem;max-width:680px;margin:0 auto 10px}
+.hero .price{font-size:1.15rem;margin-top:8px;color:var(--txt)}
+.hero .price strong{font-size:2rem;color:var(--gold)}
+.hero .ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.hero .nota{color:var(--mut);font-size:.78rem;margin-top:14px}
+
+/* ---------- Stats strip ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat b{display:block;font-size:1.5rem;color:var(--acc)}
+.stat span{color:var(--mut);font-size:.78rem}
+
+/* ---------- Sections ---------- */
+section{padding:48px 0}
+.sec-tag{color:var(--acc);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+h2{font-size:1.7rem;letter-spacing:-.01em;margin:8px 0 14px}
+.sub{color:var(--mut);max-width:700px;margin-bottom:26px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feature{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.feature h3{font-size:1rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.feature p{color:var(--mut);font-size:.9rem}
+
+/* ---------- Demo ---------- */
+.demo-box{background:var(--bg2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.demo-box .demo-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.demo-box .demo-head b{font-size:.85rem}
+.demo-box iframe{width:100%;height:620px;border:0;display:block;background:var(--bg)}
+
+/* ---------- Pricing ---------- */
+.pricing{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column}
+.plan.reco{border:1.5px solid var(--acc);position:relative;box-shadow:0 10px 40px rgba(0,168,255,.12)}
+.plan .tag-reco{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.06em;padding:4px 14px;border-radius:999px}
+.plan h3{font-size:1.05rem}
+.plan .amount{font-size:2.2rem;font-weight:800;color:var(--gold);margin:8px 0 2px}
+.plan .amount small{font-size:.95rem;color:var(--mut);font-weight:400}
+.plan ul{list-style:none;margin:16px 0 22px;flex:1}
+.plan ul li{padding:6px 0 6px 26px;position:relative;font-size:.9rem;color:var(--txt)}
+.plan ul li::before{content:"✓";position:absolute;left:2px;color:var(--acc2);font-weight:800}
+.plan .pay-actions{display:flex;flex-direction:column;gap:10px}
+
+/* ---------- Pay ---------- */
+.pay-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pay-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+.pay-card .ico{font-size:2rem;margin-bottom:6px}
+.pay-card h3{font-size:1rem;margin-bottom:4px}
+.pay-card p{color:var(--mut);font-size:.82rem;margin-bottom:14px}
+.usdt-code{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.75rem;word-break:break-all;margin-bottom:10px}
+.copy-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.82rem;font-weight:600}
+.copy-btn:hover{background:rgba(255,255,255,.18)}
+.copied{color:var(--acc2);font-size:.78rem;margin-left:8px}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;counter-reset:step}
+.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}
+.step::before{counter-increment:step;content:counter(step);position:absolute;top:12px;right:14px;color:var(--acc);font-weight:800;font-size:1.3rem;opacity:.5}
+.step b{display:block;margin-bottom:4px;font-size:.9rem}
+.step p{color:var(--mut);font-size:.78rem}
+
+/* ---------- FAQ ---------- */
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:10px}
+.faq summary{cursor:pointer;font-weight:700;font-size:.95rem;list-style:none}
+.faq summary::before{content:"▸ ";color:var(--acc)}
+.faq details[open] summary::before{content:"▾ "}
+.faq details p{color:var(--mut);font-size:.88rem;margin-top:10px}
+
+/* ---------- Disclaimer / footer ---------- */
+.disclaimer{background:rgba(255,211,77,.06);border:1px solid rgba(255,211,77,.3);border-radius:12px;padding:18px;color:var(--gold);font-size:.85rem;margin:16px 0}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--mut);font-size:.8rem;text-align:center}
+footer a{color:var(--acc);text-decoration:none}
+
+/* ---------- Responsive ---------- */
+@media (max-width:800px){
+  .nav-links a:not(.btn){display:none}
+  .hero h1{font-size:1.8rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid2,.grid3,.pricing,.pay-cards{grid-template-columns:1fr}
+  .demo-box iframe{height:520px}
+  .steps{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .stats{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr}
+  .hero{padding:40px 0 30px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">⚽ Kit <span>Dixon-Coles</span></div>
+    <nav class="nav-links">
+      <a href="#beneficios">Beneficios</a>
+      <a href="#demo">Demo</a>
+      <a href="#precios">Precios</a>
+      <a href="#pago">Pago</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn small" href="https://www.paypal.me/rdl2job/9" target="_blank" rel="noopener">Comprar · $9</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="pill">MODELO ESTADÍSTICO ACADÉMICO · DIXON-COLES</span>
+    <h1>Convierte cualquier partido de fútbol en <em>probabilidades exactas</em> en segundos</h1>
+    <p class="lead">Matriz exacta de marcadores, Monte Carlo reproducible, xG, 1X2, doble oportunidad, over/under y porterías a cero. Herramienta profesional para analistas y aficionados con modelo propio.</p>
+    <p class="price">Desde <strong>$9 USD</strong> · pago único · entrega en menos de 24 h</p>
+    <div class="ctas">
+      <a class="btn" href="https://www.paypal.me/rdl2job/9" target="_blank" rel="noopener">Comprar con PayPal — $9</a>
+      <a class="btn ghost" href="#demo">Probar la demo gratis</a>
+    </div>
+    <p class="nota">✅ 28 pruebas automatizadas · ✅ 0 dependencias · ✅ Funciona 100% offline · ✅ Demo en vivo abajo</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><b>100%</b><span>Offline y sin servidores</span></div>
+    <div class="stat"><b>28</b><span>Pruebas unitarias incluidas</span></div>
+    <div class="stat"><b>0</b><span>Dependencias externas</span></div>
+    <div class="stat"><b>2</b><span>Versiones: web y Python</span></div>
+  </div>
+</div>
+
+<!-- BENEFICIOS -->
+<section id="beneficios">
+  <div class="wrap">
+    <div class="sec-tag">Qué obtienes</div>
+    <h2>Todo lo que necesitas para analizar marcadores con rigor</h2>
+    <p class="sub">No es una calculadora de odds genérica: es un modelo estadístico real (Poisson + corrección bivariada Dixon-Coles) con validación cruzada entre la solución exacta y la simulación Monte Carlo.</p>
+    <div class="grid3">
+      <div class="feature"><h3>📊 Mercado 1X2 exacto</h3><p>Probabilidades de local, empate y visitante con la matriz teórica completa de marcadores, normalizada y con expansión automática.</p></div>
+      <div class="feature"><h3>🎯 xG esperados</h3><p>Goles esperados de cada equipo y total, derivados directamente de la distribución, además de top 10 marcadores más probables.</p></div>
+      <div class="feature"><h3>🔄 Monte Carlo reproducible</h3><p>Simulación de 50 000+ partidos con semilla fija: mismos números siempre. Intervalos de confianza de Wilson al 95% contra la matriz exacta.</p></div>
+      <div class="feature"><h3>🛡️ Mercados completos</h3><p>Doble oportunidad (1X, 12, X2), ambos marcan, over/under 1.5·2.5·3.5·4.5 y porterías a cero de cada equipo.</p></div>
+      <div class="feature"><h3>🧪 Calibración guiada</h3><p>Script incluido que calcula los ratings de ataque y defensa de tu equipo a partir de sus estadísticas históricas.</p></div>
+      <div class="feature"><h3>⚙️ Automatiza con Python</h3><p>CLI y reportes JSON para integrar en tus propias herramientas, más análisis por jornada completa con un solo comando.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-tag">Demo en vivo</div>
+    <h2>Pruébalo ahora, aquí mismo</h2>
+    <p class="sub">Esta es la versión web real del simulador, funcionando en tu navegador sin descargas. Cambia los equipos y ratings y pulsa <b>EJECUTAR SIMULACIÓN</b>.</p>
+    <div class="demo-box">
+      <div class="demo-head">
+        <b>⚽ Simulador Dixon-Coles — versión de demostración</b>
+        <a class="btn small ghost" href="../simulador_futbol_mejorado.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>
+      </div>
+      <iframe src="../simulador_futbol_mejorado.html" title="Demo del simulador Dixon-Coles" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS -->
+<section id="precios">
+  <div class="wrap">
+    <div class="sec-tag">Precios</div>
+    <h2>Elige tu nivel</h2>
+    <p class="sub">Pago único. Entrega manual por correo en menos de 24 h. Si necesitas algo a medida, escríbeme.</p>
+    <div class="pricing">
+      <div class="plan reco">
+        <span class="tag-reco">MÁS POPULAR</span>
+        <h3>⚽ Kit Estándar</h3>
+        <div class="amount">$9 USD <small>pago único</small></div>
+        <ul>
+          <li>Módulo Python completo (CLI + reportes JSON + Wilson)</li>
+          <li>Versión web offline reutilizable (sin el botón de compra)</li>
+          <li>Análisis de jornadas por lotes (analisis_lote.py)</li>
+          <li>Calibrador de ratings (calibrar_equipo.py)</li>
+          <li>Guía de calibración y uso + configuraciones de ejemplo</li>
+          <li>28 pruebas unitarias incluidas</li>
+          <li>Soporte por correo (rdl2.job@gmail.com)</li>
+        </ul>
+        <div class="pay-actions">
+          <a class="btn" href="https://www.paypal.me/rdl2job/9" target="_blank" rel="noopener">Comprar con PayPal — $9</a>
+          <a class="btn ghost sec" href="#pago">Pagar con USDT</a>
+        </div>
+      </div>
+      <div class="plan">
+        <h3>🚀 Kit PRO + Análisis personalizado</h3>
+        <div class="amount">$15 USD <small>pago único</small></div>
+        <ul>
+          <li>Todo lo del Kit Estándar</li>
+          <li>Calibración de la <b>próxima jornada de tu liga</b> hecha para ti (hasta 10 partidos)</li>
+          <li>Reporte PDF con las probabilidades de tu jornada</li>
+          <li>Prioridad de respuesta</li>
+        </ul>
+        <div class="pay-actions">
+          <a class="btn green" href="https://www.paypal.me/rdl2job/15" target="_blank" rel="noopener">Comprar con PayPal — $15</a>
+          <a class="btn ghost sec" href="#pago">Pagar con USDT</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGO -->
+<section id="pago">
+  <div class="wrap">
+    <div class="sec-tag">Cómo pagar</div>
+    <h2>Dos formas de pago reales</h2>
+    <p class="sub">Tanto PayPal como USDT dirigen a cuentas reales. Elige la que prefieras.</p>
+
+    <div class="pay-cards">
+      <div class="pay-card">
+        <div class="ico">🅿️</div>
+        <h3>PayPal</h3>
+        <p>Pago seguro con tarjeta o saldo. Después del pago, envíame tu comprobante por correo.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a class="btn" href="https://www.paypal.me/rdl2job/9" target="_blank" rel="noopener">Pagar $9 — Kit Estándar</a>
+          <a class="btn green" href="https://www.paypal.me/rdl2job/15" target="_blank" rel="noopener">Pagar $15 — Kit PRO</a>
+        </div>
+      </div>
+      <div class="pay-card">
+        <div class="ico">⛓️</div>
+        <h3>USDT (red Ethereum)</h3>
+        <p>Envía la cantidad exacta según el nivel elegido y escribe el monto en el mensaje de tu correo.</p>
+        <div class="usdt-code" id="usdtAddr">0x7DE2F24Eb14D219E7eE562b5247ff312FDD70e8c</div>
+        <button class="copy-btn" onclick="copiarUSDT()">📋 Copiar dirección</button><span class="copied" id="copiado"></span>
+        <p style="margin-top:12px">$9 = 9 USDT · $15 = 15 USDT</p>
+      </div>
+    </div>
+
+    <div style="height:34px"></div>
+    <div class="sec-tag">Entrega</div>
+    <h2>Cómo recibes tu kit</h2>
+    <div class="steps">
+      <div class="step"><b>1. Pagas</b><p>Con PayPal o USDT, según el nivel elegido.</p></div>
+      <div class="step"><b>2. Me avisas</b><p>Envía tu comprobante a rdl2.job@gmail.com e indica tu nivel (Estándar o PRO).</p></div>
+      <div class="step"><b>3. Verifico</b><p>Confirmo el pago en mi cuenta PayPal o wallet.</p></div>
+      <div class="step"><b>4. Recibes</b><p>Te respondo con el enlace de descarga del kit y, en PRO, tu análisis de jornada.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-tag">Preguntas frecuentes</div>
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details>
+        <summary>¿El simulador predice resultados reales de partidos?</summary>
+        <p>No. Entrega una <b>estimación probabilística</b> basada en un modelo estadístico (Poisson + Dixon-Coles). El fútbol real siempre puede dar resultados distintos. Ningún modelo puede "predecir" un resultado garantizado; lo que ofrece es una distribución de probabilidad rigurosa.</p>
+      </details>
+      <details>
+        <summary>¿Necesito saber programar para usarlo?</summary>
+        <p>No. La versión web funciona en el navegador sin instalar nada (mírala en la demo). Si quieres aprovechar la automatización por lotes o generar reportes JSON, basta con ejecutar un comando de Python; la guía te lleva paso a paso.</p>
+      </details>
+      <details>
+        <summary>¿Qué incluye exactamente el ZIP del Kit Estándar?</summary>
+        <p>El módulo Python, la versión web offline, el análisis por jornada, el calibrador de ratings, las configuraciones de ejemplo, la guía de uso y las 28 pruebas unitarias.</p>
+      </details>
+      <details>
+        <summary>¿Cuánto tarda la entrega?</summary>
+        <p>Generalmente en menos de 24 horas, una vez confirmado el pago en mi cuenta.</p>
+      </details>
+      <details>
+        <summary>¿Es un producto para apostar?</summary>
+        <p>No se recomienda como herramienta de apuestas ni se promete ningún rendimiento. Es una herramienta de análisis estadístico educativa y profesional. Las apuestas conllevan riesgo y deben hacerse con responsabilidad y dentro de la legalidad.</p>
+      </details>
+      <details>
+        <summary>¿Puedo pedir reembolso?</summary>
+        <p>Si el producto no funciona como se describe, escríbeme a rdl2.job@gmail.com y lo resolvemos. Productos digitales entregados no tienen reembolso automático, pero ante cualquier fallo real se ofrece soporte o reembolso.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="wrap">
+  <div class="disclaimer">
+    ⚠️ <b>Aviso:</b> Los resultados son estimaciones probabilísticas basadas en supuestos estadísticos. No constituyen predicciones garantizadas ni recomendaciones de apuestas. Este producto no promete ganancias de ningún tipo.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <p><b>Kit Analítico Dixon-Coles</b> · Producto digital original creado y publicado de forma autónoma.</p>
+    <p style="margin-top:6px">Pagos reales vía <a href="https://www.paypal.me/rdl2job" target="_blank" rel="noopener">PayPal: rdl2.job@gmail.com</a> y USDT (ETH): <span style="font-family:monospace">0x7DE2F24Eb14D219E7eE562b5247ff312FDD70e8c</span></p>
+    <p style="margin-top:6px">Contacto: <a href="mailto:rdl2.job@gmail.com">rdl2.job@gmail.com</a></p>
+  </div>
+</footer>
+
+<script>
+function copiarUSDT(){
+  const addr = document.getElementById("usdtAddr").textContent;
+  const btn = document.querySelector(".copy-btn");
+  const nota = document.getElementById("copiado");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr).then(function(){
+      nota.textContent = "✓ Copiada"; setTimeout(function(){nota.textContent = "";}, 2500);
+    });
+  } else {
+    nota.textContent = "Selecciona y copia la dirección";
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Dixon-Coles Mejorado</title>
+<style>
+/* ============================================================
+   Estilo visual: conserva y mejora el diseño original.
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a1628;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:1000px;margin:0 auto;line-height:1.45}
+h1{text-align:center;font-size:1.3rem;margin-bottom:6px}
+.badge{display:inline-block;background:#1a3a5c;color:#ffd34d;padding:2px 12px;border-radius:12px;font-size:.7rem;vertical-align:middle}
+.sub{text-align:center;color:#7a98a8;font-size:.75rem;margin-bottom:14px}
+.aviso{background:rgba(255,211,77,.08);border:1px solid rgba(255,211,77,.35);color:#ffd34d;padding:8px 12px;border-radius:8px;font-size:.72rem;margin-bottom:14px}
+
+.flex{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{padding:12px;border-radius:10px;background:rgba(255,255,255,0.06)}
+.local{border-left:4px solid #0066cc}
+.visita{border-left:4px solid #ff6b00}
+.box h3{font-size:.95rem;margin-bottom:8px}
+.box input[type=text]{background:#fff;color:#111;font-weight:bold}
+label{display:block;font-size:.7rem;color:#9fc3d4;margin:6px 0 2px}
+.row{display:flex;gap:8px}
+.row > div{flex:1}
+input,button{width:100%;padding:8px;border-radius:6px;border:none;margin:2px 0;font-size:.9rem}
+input{text-align:center;background:#fff;color:#111}
+button{background:linear-gradient(90deg,#0066cc,#0088ff);color:#fff;font-weight:bold;cursor:pointer;font-size:1.05rem;padding:11px;transition:opacity .15s}
+button:hover{opacity:.9}
+button.sec{background:rgba(255,255,255,0.12);font-size:.8rem;padding:8px}
+button.danger{background:linear-gradient(90deg,#8a2c2c,#c0392b)}
+
+.info{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;background:rgba(255,255,255,0.04);padding:12px;border-radius:10px}
+.info input{background:#0f2035;color:#fff;border:1px solid rgba(255,255,255,.12)}
+
+.seed-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.seed-row input{flex:1;max-width:150px}
+.seed-row button{width:auto;padding:6px 14px;font-size:.8rem;background:rgba(255,255,255,0.1)}
+
+.preview{text-align:center;background:rgba(255,255,255,0.04);padding:8px;border-radius:8px;margin:10px 0;font-size:.85rem;color:#9fc3d4}
+.preview strong{color:#ffd34d}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.btn-row button{flex:1;min-width:160px}
+
+.mensaje{display:none;padding:10px 12px;border-radius:8px;margin:10px 0;font-size:.85rem}
+.mensaje.ok{background:rgba(46,204,113,.12);border:1px solid #2ecc71;color:#7bed9f}
+.mensaje.err{background:rgba(231,76,60,.12);border:1px solid #e74c3c;color:#ff8d85}
+
+.results{display:none}
+.card{background:rgba(255,255,255,0.06);padding:12px;border-radius:10px;margin:8px 0}
+.card h4{font-size:.8rem;color:#9fc3d4;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.bar-bg{background:rgba(0,0,0,0.3);height:8px;border-radius:6px;overflow:hidden;margin:4px 0 10px}
+.bar{height:100%;border-radius:6px;transition:width .3s}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+td,th{padding:6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+th{color:#9fc3d4;font-size:.72rem;text-transform:uppercase}
+.rank1{background:rgba(255,211,77,0.18)!important;font-weight:bold}
+.p-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.p-row .v{font-weight:bold;color:#ffd34d}
+.p-row .ci{font-size:.7rem;color:#7a98a8;margin-left:6px}
+.mc-diff{font-size:.7rem;margin-left:6px}
+.diff-pos{color:#7bed9f}.diff-neg{color:#ff8d85}
+.mini{font-size:.72rem;color:#7a98a8;margin-top:4px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){
+  .flex,.grid2{grid-template-columns:1fr}
+  .info{grid-template-columns:repeat(2,1fr)}
+  body{padding:12px}
+}
+input[type=checkbox]{width:auto;margin-right:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<h1>⚽ Simulador Dixon-Coles <span class="badge">Mejorado</span></h1>
+<div class="sub">Matriz exacta + Monte Carlo reproducible · Estimación probabilística, no garantizada</div>
+<div class="aviso">⚠️ Los resultados son una ESTIMACIÓN PROBABILÍSTICA basada en supuestos estadísticos. No constituyen una predicción garantizada ni una recomendación de apuestas. Los parámetros deben calibrarse con datos históricos.</div>
+
+<!-- ============ EQUIPOS ============ -->
+<div class="flex">
+  <div class="box local">
+    <h3>🏠 LOCAL</h3>
+    <label>Equipo local</label>
+    <input type="text" id="equipoLocal" value="Pachuca">
+    <div class="row">
+      <div><label>Ataque α</label><input type="number" id="alphaLocal" value="1.85" step="0.05" min="0.01"></div>
+      <div><label>Defensa δ</label><input type="number" id="deltaLocal" value="0.70" step="0.05" min="0.01"></div>
+    </div>
+    <div class="mini">Contexto (opcional, NO modifica el cálculo): altitud 2400 m · líder.</div>
+  </div>
+  <div class="box visita">
+    <h3>🚩 VISITANTE</h3>
+    <label>Equipo visitante</label>
+    <input type="text" id="equipoVisitante" value="Querétaro">
+    <div class="row">
+      <div><label>Ataque α</label><input type="number" id="alphaVisitante" value="0.70" step="0.05" min="0.01"></div>
+      <div><label>Defensa δ</label><input type="number" id="deltaVisitante" value="1.15" step="0.05" min="0.01"></div>
+    </div>
+    <div class="mini">Contexto (opcional, NO modifica el cálculo): altitud 1820 m · busca punto.</div>
+  </div>
+</div>
+
+<!-- ============ PARÁMETROS ============ -->
+<div class="info">
+  <div><label>μ (goles por equipo/partido)</label><input type="number" id="mu" value="0.65" step="0.05" min="0.01"></div>
+  <div><label>γ (factor localía)</label><input type="number" id="gamma" value="1.30" step="0.05" min="0.01"></div>
+  <div><label>ρ (correlación, [-0.30, 0.30])</label><input type="number" id="rho" value="-0.15" step="0.01"></div>
+  <div><label>Máx. goles de la matriz</label><input type="number" id="maxGoles" value="10" step="1" min="1"></div>
+</div>
+
+<div class="seed-row">
+  <label style="font-size:.7rem;color:#7a98a8;margin:0">Semilla (Monte Carlo):</label>
+  <input type="number" id="semilla" value="20260726">
+  <button onclick="document.getElementById('semilla').value=Math.floor(Math.random()*999999999)">🎲 Aleatoria</button>
+  <label style="font-size:.7rem;color:#7a98a8;margin:0 0 0 10px">N simulaciones:</label>
+  <input type="number" id="nSim" value="50000" step="1000" min="100">
+</div>
+
+<div class="preview" id="preview">λ local: — · λ visitante: —</div>
+
+<div class="btn-row">
+  <button onclick="ejecutar()">▶ EJECUTAR SIMULACIÓN</button>
+</div>
+
+<div class="btn-row" style="align-items:center;justify-content:center">
+  <label style="font-size:.85rem;color:#9fc3d4;display:flex;align-items:center;gap:6px">
+    <input type="checkbox" id="chkMC" checked> Activar Monte Carlo (semilla reproducible)
+  </label>
+</div>
+
+<div class="btn-row">
+  <button class="sec" onclick="descargarConfig()">⬇️ Descargar configuración JSON</button>
+  <button class="sec" onclick="document.getElementById('fileConfig').click()">⬆️ Cargar configuración JSON</button>
+  <button class="sec" onclick="descargarReporte()">📄 Descargar reporte JSON</button>
+  <input type="file" id="fileConfig" accept="application/json" style="display:none" onchange="cargarConfig(event)">
+</div>
+
+<div class="mensaje" id="mensaje"></div>
+
+<!-- ============ RESULTADOS ============ -->
+<div class="results" id="res">
+
+  <div class="grid2">
+    <div class="card">
+      <h4>📊 Mercado 1X2 (matriz exacta)</h4>
+      <div id="p1"></div><div class="bar-bg"><div id="b1" class="bar" style="background:#0066cc;width:0%"></div></div>
+      <div id="pX"></div><div class="bar-bg"><div id="bX" class="bar" style="background:#888;width:0%"></div></div>
+      <div id="p2"></div><div class="bar-bg"><div id="b2" class="bar" style="background:#ff6b00;width:0%"></div></div>
+    </div>
+
+    <div class="card">
+      <h4>⚽ Mercados de goles (matriz exacta)</h4>
+      <div id="goles"></div>
+    </div>
+
+    <div class="card">
+      <h4>🛡️ Doble oportunidad y porterías a cero</h4>
+      <div id="extra"></div>
+    </div>
+
+    <div class="card">
+      <h4>🎯 xG esperados</h4>
+      <div id="xg"></div>
+      <div class="mini" id="cobertura"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>🏆 Top 10 marcadores más probables</h4>
+    <table><thead><tr><th>#</th><th>Marcador</th><th>Probabilidad</th></tr></thead><tbody id="top10"></tbody></table>
+  </div>
+
+  <div class="card" id="mcCard" style="display:none">
+    <h4>🔬 Monte Carlo vs matriz exacta</h4>
+    <table>
+      <thead><tr><th>Mercado</th><th>Matriz exacta</th><th>Monte Carlo</th><th>IC 95% (Wilson)</th><th>Δ</th></tr></thead>
+      <tbody id="mcBody"></tbody>
+    </table>
+    <div class="mini" id="mcXg"></div>
+  </div>
+
+  <div class="card">
+    <h4>⚙️ Parámetros utilizados</h4>
+    <div id="paramsUsados"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ⚙️ NÚCLEO DEL MODELO DIXON-COLES (coherente con la versión Python)
+// ============================================================
+const TAIL_MAXIMO = 0.01;
+const MAX_GOLES_ABS = 30;
+const Z_WILSON = 1.96;
+const N_TOP = 10;
+
+// Claves de mercados (mismas que en Python).
+const CLAVES = ["local","empate","visitante","ambos_marcan",
+  "over_1_5","under_1_5","over_2_5","under_2_5","over_3_5","under_3_5",
+  "over_4_5","under_4_5","doble_1X","doble_X2","doble_12",
+  "porteria_cero_local","porteria_cero_visitante"];
+
+const NOMBRES = {
+  local:"Local", empate:"Empate", visitante:"Visitante",
+  ambos_marcan:"Ambos marcan (Sí)",
+  over_1_5:"Más de 1.5", under_1_5:"Menos de 1.5",
+  over_2_5:"Más de 2.5", under_2_5:"Menos de 2.5",
+  over_3_5:"Más de 3.5", under_3_5:"Menos de 3.5",
+  over_4_5:"Más de 4.5", under_4_5:"Menos de 4.5",
+  doble_1X:"Doble 1X", doble_X2:"Doble X2", doble_12:"Doble 12",
+  porteria_cero_local:"Portería a cero (local)",
+  porteria_cero_visitante:"Portería a cero (visitante)"
+};
+
+// --- Distribución de Poisson (PMF) ---
+function poissonPmf(k, lam) {
+  if (lam <= 0) return k === 0 ? 1 : 0;
+  let fact = 1;
+  for (let i = 2; i <= k; i++) fact *= i;
+  return Math.exp(-lam) * Math.pow(lam, k) / fact;
+}
+
+// --- Corrección Dixon-Coles ---
+function tau(x, y, lamLocal, lamVisitante, rho) {
+  if (x === 0 && y === 0) return 1 - lamLocal * lamVisitante * rho;
+  if (x === 0 && y === 1) return 1 + lamLocal * rho;
+  if (x === 1 && y === 0) return 1 + lamVisitante * rho;
+  if (x === 1 && y === 1) return 1 - rho;
+  return 1;
+}
+
+// --- Lectura de inputs ---
+function leerParams() {
+  const v = (id, def) => {
+    const e = document.getElementById(id);
+    return e && e.value !== "" ? +e.value : def;
+  };
+  return {
+    equipoLocal: document.getElementById("equipoLocal").value.trim(),
+    equipoVisitante: document.getElementById("equipoVisitante").value.trim(),
+    alphaLocal: v("alphaLocal", 1), deltaLocal: v("deltaLocal", 1),
+    alphaVisitante: v("alphaVisitante", 1), deltaVisitante: v("deltaVisitante", 1),
+    mu: v("mu", 0.65), gamma: v("gamma", 1.2), rho: v("rho", -0.15),
+    maxGoles: Math.floor(v("maxGoles", 10)),
+    nSim: Math.floor(v("nSim", 50000)),
+    semilla: Math.floor(v("semilla", 20260726)),
+    conMonteCarlo: document.getElementById("chkMC") ? document.getElementById("chkMC").checked : true
+  };
+}
+
+// --- Validación de parámetros (mensajes visibles) ---
+function validar(p) {
+  const errs = [];
+  if (!p.equipoLocal) errs.push("El equipo local no puede estar vacío.");
+  if (!p.equipoVisitante) errs.push("El equipo visitante no puede estar vacío.");
+  ["alphaLocal","deltaLocal","alphaVisitante","deltaVisitante","mu","gamma"].forEach(k => {
+    if (!(p[k] > 0)) errs.push(k + " debe ser mayor que cero.");
+  });
+  if (!(p.rho >= -0.30 && p.rho <= 0.30)) errs.push("rho debe estar entre -0.30 y 0.30.");
+  if (!Number.isInteger(p.nSim) || p.nSim <= 0) errs.push("N simulaciones debe ser un entero positivo.");
+  if (!Number.isInteger(p.maxGoles) || p.maxGoles <= 0) errs.push("Máx. goles debe ser un entero positivo.");
+  return errs;
+}
+
+// --- Cálculo de lambdas (misma fórmula que Python) ---
+function calcularLambdas(p) {
+  const lamLocal = p.alphaLocal * p.deltaVisitante * p.gamma * p.mu;
+  const lamVisitante = p.alphaVisitante * p.deltaLocal * p.mu;
+  return { lamLocal, lamVisitante };
+}
+
+// --- Validación de tau ---
+function validarTau(lamLocal, lamVisitante, rho) {
+  const checks = [
+    ["tau(0,0)", tau(0,0,lamLocal,lamVisitante,rho)],
+    ["tau(0,1)", tau(0,1,lamLocal,lamVisitante,rho)],
+    ["tau(1,0)", tau(1,0,lamLocal,lamVisitante,rho)],
+    ["tau(1,1)", tau(1,1,lamLocal,lamVisitante,rho)]
+  ];
+  const invalidos = checks.filter(c => c[1] <= 0);
+  return invalidos.length
+    ? "La corrección Dixon-Coles no es válida. " +
+      invalidos.map(c => c[0] + "=" + c[1].toFixed(4)).join(", ") +
+      " ≤ 0. Reduce la magnitud de los ratings o de |ρ|."
+    : null;
+}
+
+// --- Construcción y normalización de la matriz (con expansión automática) ---
+function construirMatriz(lamLocal, lamVisitante, rho, maxGoles) {
+  let mg = maxGoles;
+  let cobertura = 0, matriz;
+  while (true) {
+    matriz = [];
+    for (let x = 0; x <= mg; x++) {
+      const fila = [];
+      for (let y = 0; y <= mg; y++) {
+        fila.push(poissonPmf(x, lamLocal) * poissonPmf(y, lamVisitante) *
+                  tau(x, y, lamLocal, lamVisitante, rho));
+      }
+      matriz.push(fila);
+    }
+    cobertura = matriz.reduce((s, fila) => s + fila.reduce((a, b) => a + b, 0), 0);
+    const cola = 1 - cobertura;
+    if (cola >= TAIL_MAXIMO && mg < MAX_GOLES_ABS) { mg += 5; continue; }
+    break;
+  }
+  // Normalizar (la matriz es una distribución de probabilidad).
+  for (let x = 0; x <= mg; x++)
+    for (let y = 0; y <= mg; y++)
+      matriz[x][y] /= cobertura;
+  return { matriz, cobertura, maxGolesUsado: mg };
+}
+
+// --- Mercados que se cumplen para un marcador (x, y) ---
+function mercadosParaMarcador(x, y) {
+  const claves = new Set();
+  if (x > y) { claves.add("local"); claves.add("doble_1X"); claves.add("doble_12"); }
+  else if (x === y) { claves.add("empate"); claves.add("doble_1X"); claves.add("doble_X2"); }
+  else { claves.add("visitante"); claves.add("doble_X2"); claves.add("doble_12"); }
+
+  const total = x + y;
+  if (x > 0 && y > 0) claves.add("ambos_marcan");
+
+  const umbrales = [["1_5",1],["2_5",2],["3_5",3],["4_5",4]];
+  for (const [k, u] of umbrales) {
+    claves.add(total > u ? "over_" + k : "under_" + k);
+  }
+  if (x === 0) claves.add("porteria_cero_visitante");
+  if (y === 0) claves.add("porteria_cero_local");
+  return claves;
+}
+
+// --- Análisis de la matriz exacta ---
+function analizarMatriz(matriz, lamLocal, lamVisitante) {
+  const n = matriz.length;
+  const probs = {};
+  CLAVES.forEach(k => probs[k] = 0);
+  let xgLocal = 0, xgVisitante = 0;
+  for (let x = 0; x < n; x++) {
+    for (let y = 0; y < n; y++) {
+      const p = matriz[x][y];
+      mercadosParaMarcador(x, y).forEach(k => probs[k] += p);
+      xgLocal += x * p;
+      xgVisitante += y * p;
+    }
+  }
+  // doble_* ya se acumulan dentro de mercadosParaMarcador.
+  return { probs, xgLocal, xgVisitante, xgTotal: xgLocal + xgVisitante };
+}
+
+// --- Top N marcadores ---
+function topMarcadores(matriz, nTop) {
+  const n = matriz.length;
+  const lista = [];
+  for (let x = 0; x < n; x++)
+    for (let y = 0; y < n; y++)
+      lista.push({ x, y, p: matriz[x][y] });
+  lista.sort((a, b) => b.p - a.p);
+  return lista.slice(0, nTop);
+}
+
+// --- Generador reproducible Mulberry32 (mismo que el original y el Python) ---
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function() {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t = (t + Math.imul(t ^ (t >>> 7), t | 61)) ^ t;
+    t = (t ^ (t >>> 14)) >>> 0;
+    return t / 4294967296;
+  };
+}
+
+// --- Intervalo de confianza de Wilson (95%) ---
+function wilson(x, n) {
+  if (n <= 0) return { p: 0, lo: 0, hi: 0, half: 0 };
+  const phat = x / n;
+  const z2 = Z_WILSON * Z_WILSON;
+  const den = 1 + z2 / n;
+  const centro = (phat + z2 / (2 * n)) / den;
+  const margen = Z_WILSON * Math.sqrt((phat * (1 - phat) + z2 / (4 * n)) / n) / den;
+  const lo = Math.max(0, centro - margen);
+  const hi = Math.min(1, centro + margen);
+  return { p: phat, lo, hi, half: (hi - lo) / 2 };
+}
+
+// --- Monte Carlo (muestreo por inversión de la CDF con semilla) ---
+function monteCarlo(matriz, nSim, semilla) {
+  const n = matriz.length;
+  const celdas = [];
+  let acum = 0;
+  for (let x = 0; x < n; x++)
+    for (let y = 0; y < n; y++) {
+      acum += matriz[x][y];
+      celdas.push({ x, y, acum });
+    }
+  const rng = mulberry32(semilla);
+  const conteos = {};
+  CLAVES.forEach(k => conteos[k] = 0);
+  let sumaLocal = 0, sumaVisitante = 0;
+  for (let i = 0; i < nSim; i++) {
+    const u = rng();
+    // Búsqueda binaria sobre la CDF.
+    let lo = 0, hi = celdas.length - 1, idx = 0;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (celdas[mid].acum >= u) { idx = mid; hi = mid - 1; }
+      else lo = mid + 1;
+    }
+    const celda = celdas[idx];
+    sumaLocal += celda.x;
+    sumaVisitante += celda.y;
+    mercadosParaMarcador(celda.x, celda.y).forEach(k => conteos[k]++);
+  }
+  return { conteos, sumaLocal, sumaVisitante };
+}
+
+// ============================================================
+// 🖥️ INTERFAZ
+// ============================================================
+function mostrarMensaje(tipo, texto) {
+  const m = document.getElementById("mensaje");
+  m.className = "mensaje " + tipo;
+  m.style.display = "block";
+  m.textContent = texto;
+}
+function ocultarMensaje() {
+  const m = document.getElementById("mensaje");
+  m.style.display = "none";
+}
+
+function pct(x) { return (x * 100).toFixed(2) + "%"; }
+function filaMercado(nombre, prob, ci) {
+  const ciHtml = ci ? `<span class="ci">±${(ci * 100).toFixed(2)}pp</span>` : "";
+  return `<div class="p-row"><span>${nombre}</span><span><span class="v">${pct(prob)}</span>${ciHtml}</span></div>`;
+}
+
+// Actualización en vivo de lambdas.
+function actualizarPreview() {
+  const p = leerParams();
+  const { lamLocal, lamVisitante } = calcularLambdas(p);
+  document.getElementById("preview").innerHTML =
+    `<strong>λ ${p.equipoLocal || "local"}:</strong> ${lamLocal.toFixed(3)} · ` +
+    `<strong>λ ${p.equipoVisitante || "visitante"}:</strong> ${lamVisitante.toFixed(3)}`;
+}
+
+function ejecutar() {
+  ocultarMensaje();
+  const p = leerParams();
+
+  // Validación visible de parámetros.
+  const errs = validar(p);
+  if (errs.length) {
+    mostrarMensaje("err", "Parámetros inválidos:\n• " + errs.join("\n• "));
+    return;
+  }
+
+  const { lamLocal, lamVisitante } = calcularLambdas(p);
+
+  // Validación visible de tau.
+  const errTau = validarTau(lamLocal, lamVisitante, p.rho);
+  if (errTau) {
+    mostrarMensaje("err", "Cálculo detenido. " + errTau);
+    return;
+  }
+
+  // Matriz exacta (resultado principal).
+  const { matriz, cobertura, maxGolesUsado } =
+    construirMatriz(lamLocal, lamVisitante, p.rho, p.maxGoles);
+  const { probs, xgLocal, xgVisitante, xgTotal } = analizarMatriz(matriz, lamLocal, lamVisitante);
+  const tops = topMarcadores(matriz, N_TOP);
+
+  document.getElementById("preview").innerHTML =
+    `<strong>λ ${p.equipoLocal}:</strong> ${lamLocal.toFixed(3)} · ` +
+    `<strong>λ ${p.equipoVisitante}:</strong> ${lamVisitante.toFixed(3)}`;
+
+  // 1X2
+  document.getElementById("p1").innerHTML = filaMercado("Gana " + p.equipoLocal, probs.local);
+  document.getElementById("pX").innerHTML = filaMercado("Empate", probs.empate);
+  document.getElementById("p2").innerHTML = filaMercado("Gana " + p.equipoVisitante, probs.visitante);
+  document.getElementById("b1").style.width = (probs.local * 100) + "%";
+  document.getElementById("bX").style.width = (probs.empate * 100) + "%";
+  document.getElementById("b2").style.width = (probs.visitante * 100) + "%";
+
+  // Mercados de goles
+  document.getElementById("goles").innerHTML =
+    filaMercado(NOMBRES.ambos_marcan, probs.ambos_marcan) +
+    [["over_1_5","under_1_5"],["over_2_5","under_2_5"],["over_3_5","under_3_5"],["over_4_5","under_4_5"]]
+      .map(([o, u]) => filaMercado(NOMBRES[o], probs[o]) + filaMercado(NOMBRES[u], probs[u]))
+      .join("");
+
+  // Doble oportunidad y porterías a cero
+  document.getElementById("extra").innerHTML =
+    filaMercado(NOMBRES.doble_1X, probs.doble_1X) +
+    filaMercado(NOMBRES.doble_12, probs.doble_12) +
+    filaMercado(NOMBRES.doble_X2, probs.doble_X2) +
+    filaMercado(NOMBRES.porteria_cero_local, probs.porteria_cero_local) +
+    filaMercado(NOMBRES.porteria_cero_visitante, probs.porteria_cero_visitante);
+
+  // xG y cobertura
+  document.getElementById("xg").innerHTML =
+    `<div class="p-row"><span>xG ${p.equipoLocal}</span><span class="v">${xgLocal.toFixed(2)}</span></div>` +
+    `<div class="p-row"><span>xG ${p.equipoVisitante}</span><span class="v">${xgVisitante.toFixed(2)}</span></div>` +
+    `<div class="p-row"><span>Goles totales esperados</span><span class="v">${xgTotal.toFixed(2)}</span></div>`;
+  document.getElementById("cobertura").textContent =
+    `Masa cubierta por la matriz: ${(cobertura * 100).toFixed(2)}% (máx. goles usado: ${maxGolesUsado}).` +
+    (maxGolesUsado > p.maxGoles ? " Se amplió automáticamente." : "");
+
+  // Top 10
+  const tb = document.getElementById("top10");
+  tb.innerHTML = "";
+  tops.forEach((t, i) => {
+    tb.innerHTML += `<tr class="${i === 0 ? "rank1" : ""}"><td>${i + 1}</td>` +
+      `<td>${p.equipoLocal} ${t.x} - ${t.y} ${p.equipoVisitante}</td>` +
+      `<td>${pct(t.p)}</td></tr>`;
+  });
+
+  // Monte Carlo
+  const mcCard = document.getElementById("mcCard");
+  if (p.conMonteCarlo && p.nSim > 0) {
+    const mc = monteCarlo(matriz, p.nSim, p.semilla);
+    const body = document.getElementById("mcBody");
+    body.innerHTML = "";
+    CLAVES.forEach(k => {
+      const wi = wilson(mc.conteos[k], p.nSim);
+      const dif = wi.p - probs[k];
+      const cls = dif >= 0 ? "diff-pos" : "diff-neg";
+      const sig = dif >= 0 ? "+" : "";
+      body.innerHTML += `<tr><td>${NOMBRES[k]}</td>` +
+        `<td>${pct(probs[k])}</td>` +
+        `<td>${pct(wi.p)}</td>` +
+        `<td>[${pct(wi.lo)}, ${pct(wi.hi)}]</td>` +
+        `<td><span class="mc-diff ${cls}">${sig}${(dif * 100).toFixed(3)}pp</span></td></tr>`;
+    });
+    document.getElementById("mcXg").textContent =
+      `xG simulados: local=${(mc.sumaLocal / p.nSim).toFixed(3)} · ` +
+      `visitante=${(mc.sumaVisitante / p.nSim).toFixed(3)} · ` +
+      `total=${((mc.sumaLocal + mc.sumaVisitante) / p.nSim).toFixed(3)}`;
+    mcCard.style.display = "block";
+  } else {
+    mcCard.style.display = "none";
+  }
+
+  // Parámetros usados
+  document.getElementById("paramsUsados").innerHTML =
+    `<table><tbody>` +
+    `<tr><td>α ${p.equipoLocal}</td><td>${p.alphaLocal}</td><td>δ ${p.equipoLocal}</td><td>${p.deltaLocal}</td></tr>` +
+    `<tr><td>α ${p.equipoVisitante}</td><td>${p.alphaVisitante}</td><td>δ ${p.equipoVisitante}</td><td>${p.deltaVisitante}</td></tr>` +
+    `<tr><td>μ</td><td>${p.mu}</td><td>γ</td><td>${p.gamma}</td></tr>` +
+    `<tr><td>ρ</td><td>${p.rho}</td><td>Máx. goles</td><td>${maxGolesUsado}</td></tr>` +
+    `<tr><td>N simulaciones</td><td>${p.nSim}</td><td>Semilla</td><td>${p.semilla}</td></tr>` +
+    `</tbody></table>`;
+
+  // Guardar resultados en memoria para el reporte.
+  window.__ultimoReporte = {
+    partido: {
+      equipo_local: p.equipoLocal, equipo_visitante: p.equipoVisitante,
+      parametros: {
+        alpha_local: p.alphaLocal, delta_local: p.deltaLocal,
+        alpha_visitante: p.alphaVisitante, delta_visitante: p.deltaVisitante,
+        mu: p.mu, gamma: p.gamma, rho: p.rho,
+        max_goles_pedido: p.maxGoles, max_goles_usado: maxGolesUsado,
+        n_simulaciones: p.nSim, semilla: p.semilla
+      }
+    },
+    lambdas: { local: lamLocal, visitante: lamVisitante },
+    matriz_exacta: {
+      cobertura: cobertura,
+      probabilidades: probs,
+      xg: { local: xgLocal, visitante: xgVisitante, total: xgTotal },
+      top_marcadores: tops.slice(0, N_TOP).map(t => ({ marcador: t.x + "-" + t.y, probabilidad: t.p }))
+    },
+    advertencia: "Los resultados son una estimación probabilística, no una predicción garantizada."
+  };
+
+  if (p.conMonteCarlo && p.nSim > 0) {
+    const mc = monteCarlo(matriz, p.nSim, p.semilla);
+    const mcOut = { n: p.nSim, semilla: p.semilla };
+    CLAVES.forEach(k => {
+      const wi = wilson(mc.conteos[k], p.nSim);
+      mcOut[k] = {
+        conteo: mc.conteos[k], proporcion: wi.p,
+        wilson_lim_inf: wi.lo, wilson_lim_sup: wi.hi,
+        diferencia_matriz: wi.p - probs[k]
+      };
+    });
+    mcOut.xg = { local: mc.sumaLocal / p.nSim, visitante: mc.sumaVisitante / p.nSim,
+                 total: (mc.sumaLocal + mc.sumaVisitante) / p.nSim };
+    window.__ultimoReporte.monte_carlo = mcOut;
+  } else {
+    window.__ultimoReporte.monte_carlo = null;
+  }
+
+  document.getElementById("res").style.display = "block";
+  mostrarMensaje("ok", "Simulación completada con la matriz exacta (y Monte Carlo si está activo).");
+}
+
+// ============================================================
+// 💾 JSON: descargar / cargar configuración y descargar reporte
+// ============================================================
+function descargarJSON(objeto, nombreArchivo) {
+  const blob = new Blob([JSON.stringify(objeto, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nombreArchivo;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+function descargarConfig() {
+  const p = leerParams();
+  descargarJSON({
+    equipo_local: p.equipoLocal,
+    equipo_visitante: p.equipoVisitante,
+    alpha_local: p.alphaLocal, delta_local: p.deltaLocal,
+    alpha_visitante: p.alphaVisitante, delta_visitante: p.deltaVisitante,
+    mu: p.mu, gamma: p.gamma, rho: p.rho,
+    max_goles: p.maxGoles, n_simulaciones: p.nSim, semilla: p.semilla,
+    notas: { advertencia: "Campos informativos; no modifican el cálculo." }
+  }, "config_partido.json");
+}
+
+function cargarConfig(evento) {
+  const archivo = evento.target.files[0];
+  if (!archivo) return;
+  const lector = new FileReader();
+  lector.onload = function(e) {
+    try {
+      const d = JSON.parse(e.target.result);
+      const asigna = (id, val, def) => {
+        const el = document.getElementById(id);
+        if (val !== undefined && val !== null) el.value = val; else el.value = def;
+      };
+      asigna("equipoLocal", d.equipo_local, "Local");
+      asigna("equipoVisitante", d.equipo_visitante, "Visitante");
+      asigna("alphaLocal", d.alpha_local, 1); asigna("deltaLocal", d.delta_local, 1);
+      asigna("alphaVisitante", d.alpha_visitante, 1); asigna("deltaVisitante", d.delta_visitante, 1);
+      asigna("mu", d.mu, 0.65); asigna("gamma", d.gamma, 1.2); asigna("rho", d.rho, -0.15);
+      asigna("maxGoles", d.max_goles, 10); asigna("nSim", d.n_simulaciones, 50000);
+      asigna("semilla", d.semilla, 20260726);
+      actualizarPreview();
+      mostrarMensaje("ok", "Configuración cargada correctamente.");
+      if (d.notas && typeof d.notas === "object") {
+        const resumen = Object.values(d.notas).slice(0, 2).join(" · ");
+        if (resumen) mostrarMensaje("ok", "Configuración cargada. Notas (informativas): " + resumen);
+      }
+    } catch (err) {
+      mostrarMensaje("err", "No se pudo leer el JSON: " + err.message);
+    }
+  };
+  lector.readAsText(archivo);
+  evento.target.value = "";
+}
+
+function descargarReporte() {
+  if (!window.__ultimoReporte) {
+    mostrarMensaje("err", "Primero ejecuta una simulación para poder descargar el reporte.");
+    return;
+  }
+  descargarJSON(window.__ultimoReporte, "reporte_simulacion.json");
+}
+
+// ============================================================
+// 🔄 Eventos en vivo
+// ============================================================
+const idsEnVivo = ["equipoLocal","equipoVisitante","alphaLocal","deltaLocal",
+  "alphaVisitante","deltaVisitante","mu","gamma","rho","maxGoles"];
+idsEnVivo.forEach(id => {
+  document.getElementById(id).addEventListener("input", actualizarPreview);
+});
+actualizarPreview();
+</script>
+</body>
+</html>

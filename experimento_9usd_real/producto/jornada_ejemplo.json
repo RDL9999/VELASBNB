@@ -1,0 +1,28 @@
+{
+  "mu": 0.65,
+  "gamma": 1.30,
+  "rho": -0.15,
+  "n_simulaciones": 50000,
+  "semilla": 20260726,
+  "max_goles": 10,
+  "partidos": [
+    {
+      "local": "Pachuca",
+      "visitante": "Querétaro",
+      "alpha_local": 1.85, "delta_local": 0.70,
+      "alpha_visitante": 0.70, "delta_visitante": 1.15
+    },
+    {
+      "local": "América",
+      "visitante": "Toluca",
+      "alpha_local": 1.60, "delta_local": 0.85,
+      "alpha_visitante": 0.90, "delta_visitante": 1.05
+    },
+    {
+      "local": "Guadalajara",
+      "visitante": "Puebla",
+      "alpha_local": 1.20, "delta_local": 1.00,
+      "alpha_visitante": 0.80, "delta_visitante": 1.20
+    }
+  ]
+}

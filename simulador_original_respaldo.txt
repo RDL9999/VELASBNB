@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Simulador Liga MX</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0a1628;color:#fff;font-family:sans-serif;padding:16px;max-width:1000px;margin:0 auto}
+h1{text-align:center;font-size:1.4rem;margin-bottom:8px}.badge{display:inline-block;background:#1a3a5c;color:#ffd34d;padding:2px 12px;border-radius:12px;font-size:.7rem}
+.flex{display:grid;grid-template-columns:1fr 1fr;gap:14px}.box{padding:12px;border-radius:10px;background:rgba(255,255,255,0.06)}.local{border-left:4px solid #0066cc}.visita{border-left:4px solid #ff6b00}
+label{display:block;font-size:.7rem;color:#9fc3d4;margin:4px 0 2px}.row{display:flex;gap:8px}.row input{flex:1}
+input,button{width:100%;padding:8px;border-radius:6px;border:none;margin:2px 0;font-size:.9rem}input{text-align:center;background:#fff;color:#111}
+button{background:linear-gradient(90deg,#0066cc,#0088ff);color:#fff;font-weight:bold;cursor:pointer;font-size:1.1rem;padding:12px}
+.info{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin:10px 0;background:rgba(255,255,255,0.04);padding:12px;border-radius:10px}
+.preview{text-align:center;background:rgba(255,255,255,0.04);padding:8px;border-radius:8px;margin:8px 0;font-size:.85rem;color:#9fc3d4}
+.preview strong{color:#ffd34d}.results{display:none}.card{background:rgba(255,255,255,0.06);padding:12px;border-radius:10px;margin:8px 0}
+.card h4{font-size:.8rem;color:#9fc3d4;margin-bottom:8px;text-transform:uppercase}
+.bar-bg{background:rgba(0,0,0,0.3);height:8px;border-radius:6px;overflow:hidden;margin:4px 0 8px}
+.bar{height:100%;border-radius:6px;transition:width .3s}
+table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{padding:6px;text-align:left}
+.rank1{background:rgba(255,211,77,0.18)!important;font-weight:bold}
+.p-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.p-row .v{font-weight:bold;color:#ffd34d}.p-row .ci{font-size:.7rem;color:#7a98a8;margin-left:6px}
+.seed-row{display:flex;gap:8px;align-items:center;margin:6px 0}.seed-row input{flex:1;max-width:120px}.seed-row button{width:auto;padding:6px 14px;font-size:.8rem;background:rgba(255,255,255,0.1)}
+</style></head>
+<body>
+
+<h1>⚽ Simulador Dixon-Coles <span class="badge">Liga MX 2026</span></h1>
+
+<div class="flex">
+<div class="box local"><h3>🏠 <span id="nomL">Pachuca</span> <span id="altL" style="font-size:.6rem;color:#b388ff">2,400m</span></h3>
+<div class="row"><div><label>Ataque α</label><input type="number" id="aL" value="1.85" step="0.05"></div>
+<div><label>Defensa δ</label><input type="number" id="dL" value="0.70" step="0.05"></div></div>
+<div id="statsL" style="font-size:.75rem;color:#9fc3d4;margin-top:6px">🏆 3-0 vs Pumas · Líder</div>
+</div>
+<div class="box visita"><h3>🚩 <span id="nomV">Querétaro</span> <span id="altV" style="font-size:.6rem;color:#b388ff">1,820m</span></h3>
+<div class="row"><div><label>Ataque α</label><input type="number" id="aV" value="0.70" step="0.05"></div>
+<div><label>Defensa δ</label><input type="number" id="dV" value="1.15" step="0.05"></div></div>
+<div id="statsV" style="font-size:.75rem;color:#9fc3d4;margin-top:6px">⚠️ Derrota 1-0 vs América · Busca punto</div>
+</div>
+</div>
+
+<div class="info">
+<div><label>μ (goles/liga)</label><input type="number" id="mu" value="0.65" step="0.05"></div>
+<div><label>ρ (rho)</label><input type="number" id="rho" value="-0.15" step="0.01"></div>
+<div><label>γ (localía)</label><input type="number" id="gamma" value="1.30" step="0.05"></div>
+<div><label>N sim</label><input type="number" id="N" value="50000"></div>
+</div>
+
+<div class="seed-row">
+<span style="font-size:.7rem;color:#7a98a8">Semilla:</span>
+<input type="number" id="seed" value="20260726">
+<button onclick="document.getElementById('seed').value=Math.floor(Math.random()*999999999)">🎲</button>
+</div>
+
+<div class="preview" id="preview">λ Pachuca: 1.798 · λ Querétaro: 0.318</div>
+<button onclick="simular()">▶ EJECUTAR SIMULACIÓN</button>
+
+<div class="results" id="res">
+<div class="card"><h4>📊 Mercado 1X2</h4>
+<div id="p1"></div><div class="bar-bg"><div id="b1" class="bar" style="background:#0066cc;width:0%"></div></div>
+<div id="pX"></div><div class="bar-bg"><div id="bX" class="bar" style="background:#888;width:0%"></div></div>
+<div id="p2"></div><div class="bar-bg"><div id="b2" class="bar" style="background:#ff6b00;width:0%"></div></div>
+</div>
+
+<div class="card"><h4>⚽ Mercados de Goles</h4>
+<div id="goles"></div>
+<div style="margin-top:8px;font-size:.85rem;color:#9fc3d4" id="xg"></div>
+</div>
+
+<div class="card"><h4>🎯 Top 3 Marcadores</h4>
+<table><thead><tr><th>#</th><th>Marcador</th><th>Probabilidad</th></tr></thead><tbody id="top3"></tbody></table>
+</div>
+</div>
+
+<script>
+// ============================================================
+// ⚙️ NÚCLEO DEL MODELO DIXON-COLES CON SEMILLA
+// ============================================================
+let rng=()=>Math.random();
+
+function setSeed(s){let a=s>>>0;rng=()=>(a|=0,a=a+0x6D2B79F5|0,((t=(t=Math.imul(a^a>>>15,1|a))+(Math.imul(t^t>>>7,61|t))^t,t^t>>>14)>>>0)/4294967296)}
+
+function poisson(l){if(l<=0)return 0;let L=Math.exp(-l),k=0,p=1;do{k++;p*=rng()}while(p>L);return k-1}
+function tau(x,y,l,m,r){if(x==0&&y==0)return 1-l*m*r;if(x==0&&y==1)return 1+l*r;if(x==1&&y==0)return 1+m*r;if(x==1&&y==1)return 1-r;return 1}
+function sample(l,m,r){let gl,gv,t,g=0;do{gl=poisson(l);gv=poisson(m);t=tau(gl,gv,l,m,r);g++}while((t<=0||rng()>=Math.min(1,t))&&g<5000);return[gl,gv]}
+
+function simular(){
+// Leer inputs
+let aL=+document.getElementById('aL').value,dL=+document.getElementById('dL').value
+let aV=+document.getElementById('aV').value,dV=+document.getElementById('dV').value
+let mu=+document.getElementById('mu').value,rho=+document.getElementById('rho').value
+let g=+document.getElementById('gamma').value,n=+document.getElementById('N').value
+let seed=+document.getElementById('seed').value
+let nomL=document.getElementById('nomL').textContent,nomV=document.getElementById('nomV').textContent
+
+// === SEMILLA FUNCIONAL ===
+setSeed(seed);
+
+// Calcular λ
+let lL=aL*dV*g*mu,lV=aV*dL*mu
+document.getElementById('preview').innerHTML=`<strong>λ ${nomL}:</strong> ${lL.toFixed(3)} · <strong>λ ${nomV}:</strong> ${lV.toFixed(3)}`
+
+// Simular
+let w1=0,dr=0,w2=0,btts=0,o15=0,o25=0,o35=0,tg=0,sumL=0,sumV=0,sc={}
+for(let i=0;i<n;i++){
+ let[gl,gv]=sample(lL,lV,rho)
+ sumL+=gl;sumV+=gv;let t=gl+gv;tg+=t
+ gl>gv?w1++:gl==gv?dr++:w2++
+ if(gl>0&&gv>0)btts++
+ if(t>1)o15++
+ if(t>2)o25++
+ if(t>3)o35++
+ let k=gl+'-'+gv;sc[k]=(sc[k]||0)+1
+}
+
+// Formatear
+let p=x=>((x/n*100).toFixed(1)+'%')
+let ci=x=>`±${(1.96*Math.sqrt(x/n*(1-x/n)/n)*100).toFixed(1)}pp`
+
+// Renderizar 1X2
+document.getElementById('p1').innerHTML=`<div class="p-row"><span>Gana ${nomL}</span><span><span class="v">${p(w1)}</span><span class="ci">${ci(w1)}</span></span></div>`
+document.getElementById('pX').innerHTML=`<div class="p-row"><span>Empate</span><span><span class="v">${p(dr)}</span><span class="ci">${ci(dr)}</span></span></div>`
+document.getElementById('p2').innerHTML=`<div class="p-row"><span>Gana ${nomV}</span><span><span class="v">${p(w2)}</span><span class="ci">${ci(w2)}</span></span></div>`
+document.getElementById('b1').style.width=w1/n*100+'%'
+document.getElementById('bX').style.width=dr/n*100+'%'
+document.getElementById('b2').style.width=w2/n*100+'%'
+
+// Renderizar goles
+document.getElementById('goles').innerHTML=
+`<div class="p-row"><span>Ambos Marcan (Sí)</span><span><span class="v">${p(btts)}</span><span class="ci">${ci(btts)}</span></span></div>
+<div class="p-row"><span>Más de 2.5</span><span><span class="v">${p(o25)}</span><span class="ci">${ci(o25)}</span></span></div>
+<div class="p-row"><span>Menos de 2.5</span><span><span class="v">${p(n-o25)}</span><span class="ci">${ci(n-o25)}</span></span></div>
+<div class="p-row"><span>Más de 3.5</span><span><span class="v">${p(o35)}</span><span class="ci">${ci(o35)}</span></span></div>`
+
+// xG
+document.getElementById('xg').textContent=`xG ${nomL}: ${(sumL/n).toFixed(2)} · xG ${nomV}: ${(sumV/n).toFixed(2)} · Promedio total: ${(tg/n).toFixed(2)}`
+
+// Top 3
+let top=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3)
+let tb=document.getElementById('top3');tb.innerHTML=''
+top.forEach((s,i)=>{tb.innerHTML+=`<tr class="${i==0?'rank1':''}"><td>${i+1}</td><td>${nomL.substring(0,4).toUpperCase()} ${s[0].replace('-',' - ')} ${nomV.substring(0,4).toUpperCase()}</td><td>${p(s[1])}</td></tr>`})
+
+document.getElementById('res').style.display='block'
+}
+</script>
+</body>
+</html>
